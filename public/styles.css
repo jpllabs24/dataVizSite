@@ -1,0 +1,42 @@
+/* General Page Styling */
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  background-color: #f7f9fb;
+  color: #333;
+}
+
+/* Header */
+h1 {
+  margin-top: 40px;
+  color: #222;
+}
+
+/* Tableau Dashboard Frame */
+iframe {
+  width: 90%;
+  height: 80vh;
+  border: none;
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Paragraph & Links */
+p {
+  margin: 20px;
+  font-size: 16px;
+}
+
+a {
+  color: #007acc;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #005b99;
+}

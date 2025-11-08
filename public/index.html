@@ -1,23 +1,36 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-<head><
-  <meta charset="UTF-8"
-  <meta name="viewport" content="width=device-width, inital-scale=1.0">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Data Visualization of National Socioeconomics and Policy Data</title>
+  
+  <!-- Link external CSS -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <h1>📊 My Tableau Dashboard</h1>
 
-  <!-- Replace the src with your Tableau Public embed link -->
-  <iframe src="https://public.tableau.com/views/YourDashboardName/Sheet1?:showVizHome=no&:embed=true"></iframe>
+  <!-- Replace the src below with your actual Tableau embed link -->
+  <iframe
+    src="https://public.tableau.com/views/YourDashboardName/Sheet1?:showVizHome=no&:embed=true"
+    title="Tableau Dashboard"
+    allowfullscreen>
+  </iframe>
 
-  <p>View this dashboard on <a href="https://public.tableau.com/app/profile/johnny.joseph.parker.lee/vizzes">Tableau Public</a>.</p>
-  <div id="root"></div>
+  <p>
+    View this dashboard on 
+    <a href="https://public.tableau.com/app/profile/johnny.joseph.parker.lee/vizzes" target="_blank">
+      Tableau Public
+    </a>.
+  </p>
 
-  <!-- Tableau JS API (Public/Online) -->
+  <!-- Tableau JS API -->
   <script src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
 
-  <!-- Parcel will inject the JS bundle -->
-  <script src="./src/index.jsx"></script>
+  <!-- Optional JS for interactivity -->
+  <div id="root"></div>
+  <script src="./src/index.jsx" type="module"></script>
 </body>
 </html>
