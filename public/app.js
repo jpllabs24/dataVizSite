@@ -22,5 +22,5 @@
   // Mobile menu toggle
   const menuBtn = document.getElementById('menu-toggle');
   const links = document.querySelector('.navlinks');
-//   menuBtn?.addEventListener('click', ()=> links?.classList.toggle('open'));
+  menuBtn?.addEventListener('click', ()=> links?.classList.toggle('open'));
 })();
