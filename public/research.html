@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Research Papers | Etago Dashboards</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="demo-banner">
+    Demo environment — authentication, roles, and themes are simulated client-side only.
+  </div>
+
+  <!-- NAVBAR (same as other pages) -->
+  <header class="navbar">
+    <div class="inner">
+      <div class="brand">
+        <span class="dot"></span> Etago Dashboards
+      </div>
+      <nav class="navlinks">
+        <a href="index.html">Home</a>
+        <a href="dashboard1.html" data-dashboard="dashboard1.html">Business Analytics</a>
+        <a href="dashboard2.html" data-dashboard="dashboard2.html">Data Analytics</a>
+        <a href="dashboard3.html" data-dashboard="dashboard3.html">AI Monitoring</a>
+        <a href="research.html" class="nav-logged-in">Research</a>
+
+        <a href="login.html" class="nav-logged-out">Login</a>
+        <a href="profile.html" class="nav-logged-in">
+          Profile (<span class="nav-username"></span>)
+        </a>
+        <a href="admin.html" class="nav-logged-in">Admin</a>
+
+        <button type="button" id="theme-toggle" class="nav-theme-btn nav-logged-in">
+          🌓 Theme
+        </button>
+        <button type="button" class="nav-logged-in btn-secondary" onclick="logout()">
+          Logout
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <section class="hero">
+      <h1>📑 Research Library</h1>
+      <p class="sub">Published and ongoing work from Etago Labs</p>
+    </section>
+
+    <div class="card">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search papers by title, author, topic..."
+        style="width:100%; margin-bottom: 16px;"
+      />
+      <div id="papers-grid" class="grid"></div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="paper-modal" style="
+    display:none;
+    position: fixed; inset:0;
+    background: rgba(0,0,0,.4);
+    backdrop-filter: blur(4px);
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+  ">
+    <div style="
+      background: var(--paper);
+      border: 1px solid #e7e1d6;
+      border-radius: 16px;
+      max-width: 700px;
+      width:100%;
+      padding: 20px;
+      max-height: 90vh;
+      overflow:auto;">
+      <h2 id="modal-title"></h2>
+      <p id="modal-authors" class="muted" style="margin-top:-8px;"></p>
+      <p id="modal-abstract" style="margin-top:16px;"></p>
+      <div style="margin-top:20px;">
+        <a id="modal-pdf" href="#" target="_blank" class="btn-primary">📄 View PDF</a>
+        <button class="btn-secondary" onclick="closeModal()" style="margin-left: 12px;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="theme.js"></script>
+  <script>
+    requireLogin(); // Research library requires login
+
+    // Mock research database (you can expand easily)
+    const PAPERS = [
+      {
+        title: "Monitoring Agentic Workflows in AI Systems",
+        authors: "Johnny J. Parker-Lee, 2025",
+        abstract:
+          "A monitoring framework for multi-agent systems that identifies failure modes, emergent cooperation patterns, and reward hacking behaviors...",
+        pdf: "papers/monitoring-agentic-workflows.pdf",
+        tags: ["multi-agent", "ethics", "observability"]
+      },
+      {
+        title: "Geospatial Reasoning in Retrieval-Augmented Generation",
+        authors: "Johnny J. Parker-Lee, 2025",
+        abstract:
+          "RAG systems typically focus on linguistic recall and entity resolution problems. We introduce geospatial priors to improve grounding...",
+        pdf: "document-rag.pdf",
+        tags: ["RAG", "NLP"]
+      }
+    ];
+
+    const grid = document.getElementById("papers-grid");
+    const search = document.getElementById("search");
+    const modal = document.getElementById("paper-modal");
+
+    function render(papers) {
+      grid.innerHTML = "";
+      papers.forEach((paper, i) => {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.innerHTML = `
+          <h3>${paper.title}</h3>
+          <p class="muted">${paper.authors}</p>
+          <p style="height:48px; overflow:hidden;">${paper.abstract}</p>
+          <button class="btn-secondary" data-index="${i}">Read more</button>
+        `;
+        grid.appendChild(el);
+      });
+
+      document.querySelectorAll("[data-index]").forEach(btn =>
+        btn.addEventListener("click", e => {
+          openModal(PAPERS[e.target.getAttribute("data-index")]);
+        })
+      );
+    }
+
+    search.addEventListener("input", () => {
+      const q = search.value.toLowerCase();
+      const filtered = PAPERS.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.authors.toLowerCase().includes(q) ||
+        p.tags.join(" ").toLowerCase().includes(q)
+      );
+      render(filtered);
+    });
+
+    function openModal(p) {
+      document.getElementById("modal-title").textContent = p.title;
+      document.getElementById("modal-authors").textContent = p.authors;
+      document.getElementById("modal-abstract").textContent = p.abstract;
+      document.getElementById("modal-pdf").href = p.pdf;
+      modal.style.display = "flex";
+    }
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    render(PAPERS);
+  </script>
+</body>
+</html>
