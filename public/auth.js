@@ -5,16 +5,16 @@
 // Mock users (demo only – NOT secure)
 const MOCK_USERS = [
   {
-    username: "jparkerlee",
-    password: "123456",
+    username: "admin",
+    password: "admin123",
     role: "admin",
-    dashboards: ["dashboard1.html", "dashboard2.html", "dashboard3.html"]
+    dashboards: ["dashboard1.html", "dashboard2.html", "dashboard3.html", "dashboard4.html"]
   },
   {
-    username: "jserraty",
+    username: "jjparkerlee",
     password: "123456",
     role: "user",
-    dashboards: ["dashboard1.html"]
+    dashboards: ["dashboard2.html", "dashboard3.html"]
   }
 ];
 
@@ -27,7 +27,14 @@ function setCurrentUser(user) {
 
 function getCurrentUser() {
   const raw = localStorage.getItem("currentUser");
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Bad currentUser JSON, clearing", e);
+    localStorage.removeItem("currentUser");
+    return null;
+  }
 }
 
 function clearCurrentUser() {
@@ -77,7 +84,6 @@ function logout() {
 
 // ===== Guards =====
 
-// Basic: just require any logged-in user
 function requireLogin() {
   const user = getCurrentUser();
   if (!user) {
@@ -85,7 +91,6 @@ function requireLogin() {
   }
 }
 
-// Only allow admins
 function requireAdmin() {
   const user = getCurrentUser();
   if (!user || user.role !== "admin") {
@@ -93,7 +98,6 @@ function requireAdmin() {
   }
 }
 
-// Per-dashboard access control
 function requireDashboardAccess(pageName) {
   const user = getCurrentUser();
 
@@ -122,22 +126,27 @@ function requireDashboardAccess(pageName) {
 
 // ===== Nav / UI wiring =====
 
-// Called on DOMContentLoaded on pages that include the nav
 function updateNavAuthState() {
   const user = getCurrentUser();
 
   const loggedOutLinks = document.querySelectorAll(".nav-logged-out");
   const loggedInLinks = document.querySelectorAll(".nav-logged-in");
   const usernameSpans = document.querySelectorAll(".nav-username");
+  const adminLinks = document.querySelectorAll('a[href="admin.html"]');
 
   if (user) {
-    loggedOutLinks.forEach((el) => (el.style.display = "none"));
+    loggedOutLinks.forEach((el) => (el.style.display = "inline-block"));
     loggedInLinks.forEach((el) => (el.style.display = "inline-block"));
     usernameSpans.forEach((el) => (el.textContent = user.username));
+
+    adminLinks.forEach((el) => {
+      el.style.display = user.role === "admin" ? "inline-block" : "none";
+    });
   } else {
     loggedOutLinks.forEach((el) => (el.style.display = "inline-block"));
     loggedInLinks.forEach((el) => (el.style.display = "none"));
     usernameSpans.forEach((el) => (el.textContent = ""));
+    adminLinks.forEach((el) => (el.style.display = "none"));
   }
 
   // Hide dashboard links user doesn't have access to
@@ -164,6 +173,18 @@ function updateNavAuthState() {
   });
 }
 
+function highlightActiveNav() {
+  const path = window.location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll("header nav a[href]").forEach((link) => {
+    if (link.getAttribute("href") === path) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+}
 
-// Run when DOM is ready (for pages that include this file)
-document.addEventListener("DOMContentLoaded", updateNavAuthState);
+document.addEventListener("DOMContentLoaded", () => {
+  updateNavAuthState();
+  highlightActiveNav();
+});

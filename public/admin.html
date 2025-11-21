@@ -6,19 +6,36 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Shared nav -->
-  <header class="top-nav">
-    <div class="logo">Etago Dashboards</div>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="dashboard1.html">Dash 1</a>
-      <a href="dashboard2.html">Dash 2</a>
-      <a href="dashboard3.html">Dash 3</a>
-      <a href="login.html" class="nav-logged-out">Login</a>
-      <a href="profile.html" class="nav-logged-in">Profile (<span class="nav-username"></span>)</a>
-      <a href="admin.html" class="nav-logged-in">Admin</a>
-      <button type="button" class="nav-logged-in" onclick="logout()">Logout</button>
-    </nav>
+  <div class="demo-banner">
+    Demo environment — authentication, roles, and themes are simulated client-side only.
+  </div>
+
+  <header class="navbar">
+    <div class="inner">
+      <div class="brand">
+        <span class="dot"></span> Etago Dashboards
+      </div>
+      <nav class="navlinks">
+        <a href="index.html">Home</a>
+        <a href="dashboard1.html" data-dashboard="dashboard1.html">Dashboard 1</a>
+        <a href="dashboard2.html" data-dashboard="dashboard2.html">Dashboard 2</a>
+        <a href="dashboard3.html" data-dashboard="dashboard3.html">Dashboard 3</a>
+
+        <a href="login.html" class="nav-logged-out">Login</a>
+        <a href="profile.html" class="nav-logged-in">
+          Profile (<span class="nav-username"></span>)
+        </a>
+        <a href="admin.html" class="nav-logged-in">Admin</a>
+
+        <button type="button" id="theme-toggle" class="nav-theme-btn nav-logged-in">
+          🌓 Theme
+        </button>
+
+        <button type="button" class="nav-logged-in btn-secondary" onclick="logout()">
+          Logout
+        </button>
+      </nav>
+    </div>
   </header>
 
   <main class="page-container">
@@ -29,17 +46,18 @@
         On GitHub Pages, this is purely a front-end mockup.
       </p>
 
-      <h2>Users & Roles</h2>
+      <h2>Users &amp; Roles</h2>
       <table class="data-table" id="user-table">
         <thead>
           <tr>
             <th>Username</th>
             <th>Role</th>
+            <th>Dashboards</th>
             <th>Promote/Demote</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Filled by JS from MOCK_USERS -->
+          <!-- Filled by JS -->
         </tbody>
       </table>
     </section>
@@ -50,31 +68,37 @@
         These are the kinds of controls that would be implemented server-side in a real app:
       </p>
       <ul class="security-list">
-        <li><strong>Authentication:</strong> Use secure session cookies or JWTs, not <code>localStorage</code>, for real user auth.</li>
-        <li><strong>Password storage:</strong> Hash passwords with a modern algorithm (e.g., bcrypt, Argon2) and never store them in plain text.</li>
-        <li><strong>Role-based access control (RBAC):</strong> Enforce roles (user, admin, etc.) on the server for every request.</li>
-        <li><strong>Transport security:</strong> Serve the app over HTTPS only, with HSTS enabled.</li>
-        <li><strong>Input validation & sanitization:</strong> Validate user input on the server to prevent injection attacks.</li>
-        <li><strong>Audit logging:</strong> Log admin actions such as role changes and access to sensitive dashboards.</li>
-        <li><strong>Least privilege:</strong> Give users the minimum permissions needed to do their work.</li>
+        <li><strong>Authentication:</strong> Secure session cookies or JWTs, not <code>localStorage</code>, for real user auth.</li>
+        <li><strong>Password storage:</strong> Hash passwords with bcrypt/Argon2; never store them in plain text.</li>
+        <li><strong>RBAC:</strong> Enforce roles on the server on every request.</li>
+        <li><strong>Transport security:</strong> HTTPS-only with HSTS.</li>
+        <li><strong>Input validation:</strong> Server-side validation & sanitization to prevent injection attacks.</li>
+        <li><strong>Audit logging:</strong> Log admin actions like role changes and access to sensitive data.</li>
+        <li><strong>Least privilege:</strong> Only grant the minimum rights needed per user.</li>
       </ul>
     </section>
   </main>
 
   <script src="auth.js"></script>
+  <script src="theme.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Only admins can access this page
       requireAdmin();
 
       const userTableBody = document.querySelector("#user-table tbody");
 
-      // For demo: clone MOCK_USERS (admin.js doesn't know about private const, so we
-      // expect MOCK_USERS to be global; if it isn't, you can mirror the data here)
-      const mockUsers = window.MOCK_USERS || [
-        { username: "admin", password: "admin123", role: "admin" },
-        { username: "alice", password: "password", role: "user" },
-        { username: "bob", password: "password", role: "user" }
+      // Clone the mock users for display (no real persistence)
+      const mockUsers = [
+        {
+          username: "admin",
+          role: "admin",
+          dashboards: ["dashboard1.html", "dashboard2.html", "dashboard3.html", "dashboard4.html"]
+        },
+        {
+          username: "jjparkerlee",
+          role: "user",
+          dashboards: ["dashboard2.html", "dashboard3.html"]
+        }
       ];
 
       function renderTable() {
@@ -89,6 +113,9 @@
           tdRole.textContent = u.role;
           tdRole.className = u.role === "admin" ? "badge badge-admin" : "badge badge-user";
 
+          const tdDash = document.createElement("td");
+          tdDash.textContent = u.dashboards.join(", ");
+
           const tdAction = document.createElement("td");
           const btn = document.createElement("button");
           btn.textContent = u.role === "admin" ? "Demote to user (mock)" : "Promote to admin (mock)";
@@ -102,6 +129,7 @@
 
           tr.appendChild(tdUser);
           tr.appendChild(tdRole);
+          tr.appendChild(tdDash);
           tr.appendChild(tdAction);
 
           userTableBody.appendChild(tr);

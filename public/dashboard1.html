@@ -3,38 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard 1 • Tableau</title>
+  <title>Dashboard 1 • Etago Dashboards</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="demo-banner">
+    Demo environment — authentication, roles, and themes are simulated client-side only.
+  </div>
+
   <header class="navbar">
     <div class="inner">
-      <div class="brand"><span class="dot"></span> Dashboards</div>
-      <div class="spacer"></div>
+      <div class="brand">
+        <span class="dot"></span> Etago Dashboards
+      </div>
       <nav class="navlinks">
         <a href="index.html">Home</a>
-        <a href="dashboard1.html">Dashboard 1</a>
-        <a href="dashboard2.html">Dashboard 2</a>
-        <a href="dashboard3.html">Dashboard 3</a>
+        <a href="dashboard1.html" data-dashboard="dashboard1.html">Dashboard 1</a>
+        <a href="dashboard2.html" data-dashboard="dashboard2.html">Dashboard 2</a>
+        <a href="dashboard3.html" data-dashboard="dashboard3.html">Dashboard 3</a>
 
-        <!-- Auth-aware links -->
         <a href="login.html" class="nav-logged-out">Login</a>
         <a href="profile.html" class="nav-logged-in">
           Profile (<span class="nav-username"></span>)
         </a>
         <a href="admin.html" class="nav-logged-in">Admin</a>
-        <button type="button" class="nav-logged-in" onclick="logout()">Logout</button>
+
+        <button type="button" id="theme-toggle" class="nav-theme-btn nav-logged-in">
+          🌓 Theme
+        </button>
+
+        <button type="button" class="nav-logged-in btn-secondary" onclick="logout()">
+          Logout
+        </button>
       </nav>
     </div>
   </header>
 
-  <main class="container">
+  <main class="page-container">
     <section class="hero">
-      <h1>📊 My Tableau Dashboard</h1>
+      <h1>📊 My Tableau Dashboard 1</h1>
       <p class="sub">Embedded from Tableau Public • responsive sizing</p>
     </section>
 
-    <section class="embed-card">
+    <section class="card embed-card">
+      <div class="loading" id="viz-loading">Loading dashboard…</div>
       <div class="tableauPlaceholder" id="viz1">
         <noscript>
           <a href="#">
@@ -63,15 +75,17 @@
   </main>
 
   <script src="auth.js"></script>
+  <script src="theme.js"></script>
   <script>
+    requireLogin();
     requireDashboardAccess("dashboard1.html");
   </script>
-
 
   <script>
     (function() {
       const div = document.getElementById('viz1');
       const obj = div.getElementsByTagName('object')[0];
+      const loading = document.getElementById('viz-loading');
 
       function sizeViz() {
         const w = div.offsetWidth;
@@ -86,15 +100,21 @@
           obj.style.height = Math.round(w * 1.2) + 'px';
         }
       }
-      sizeViz();
-      window.addEventListener('resize', sizeViz, { passive: true });
 
-      const s = document.createElement('script');
-      s.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
-      obj.parentNode.insertBefore(s, obj);
+      function initVizScript() {
+        const s = document.createElement('script');
+        s.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+        s.onload = () => {
+          if (loading) loading.style.display = 'none';
+          obj.style.display = 'block';
+          sizeViz();
+        };
+        obj.parentNode.insertBefore(s, obj);
+      }
+
+      window.addEventListener('resize', sizeViz, { passive: true });
+      initVizScript();
     })();
   </script>
-  <script src="app.js"></script>
-  <script src="theme.js"></script>
 </body>
 </html>
